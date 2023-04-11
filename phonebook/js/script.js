@@ -25,7 +25,7 @@ const data = [
 
 const btnParams = [
   {
-    className: 'btn btn-primary mr-3 js-add',
+    className: 'btn btn-primary mr-3',
     type: 'button',
     text: 'Добавить',
   },
@@ -47,6 +47,12 @@ const btnFormParams = [
     text: 'Отмена',
   },
 ];
+
+const editBtn = {
+  className: 'btn btn-danger',
+  type: 'button',
+  text: 'Редактировать',
+};
 
 {
   const createContainer = () => {
@@ -106,6 +112,17 @@ const btnFormParams = [
     };
   };
 
+  const createBtn = ({className, type, text}) => {
+    const button = document.createElement('button');
+
+    button.className = className;
+    button.type = type;
+    button.textContent = text;
+    console.log(button);
+
+    return button;
+  };
+
   const createTable = () => {
     const table = document.createElement('table');
     table.classList.add('table', 'table-striped');
@@ -117,6 +134,7 @@ const btnFormParams = [
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Телефон</th>
+        <th></th>
       </tr>
     `);
 
@@ -215,10 +233,13 @@ const btnFormParams = [
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
-    tr.phoneLink = phoneLink;
+
     tdPhone.append(phoneLink);
 
-    tr.append(tdDel, tdName, tdSurname, tdPhone);
+    const tdBtn = document.createElement('td');
+    tdBtn.append(createBtn(editBtn));
+
+    tr.append(tdDel, tdName, tdSurname, tdPhone, tdBtn);
 
     return tr;
   };
