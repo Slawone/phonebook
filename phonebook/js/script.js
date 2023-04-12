@@ -118,7 +118,6 @@ const editBtn = {
     button.className = className;
     button.type = type;
     button.textContent = text;
-    console.log(button);
 
     return button;
   };
@@ -199,7 +198,6 @@ const editBtn = {
     const table = createTable();
     const form = createForm();
     const footer = createFooter(title);
-
     header.headerContainer.append(logo);
     main.mainContainer.append(buttonGroup.btnWrapper, table, form.overlay);
     app.append(header, main, footer);
@@ -208,6 +206,7 @@ const editBtn = {
       list: table.tbody,
       logo,
       btnAdd: buttonGroup.btns[0],
+      btnDel: buttonGroup.btns[1],
       formOverlay: form.overlay,
       form: form.form,
     };
@@ -215,6 +214,8 @@ const editBtn = {
 
   const createRow = ({name: firstName, surname, phone}) => {
     const tr = document.createElement('tr');
+    tr.classList.add('contact');
+
     const tdDel = document.createElement('td');
     tdDel.classList.add('delete');
 
@@ -233,7 +234,7 @@ const editBtn = {
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
-
+    tr.phoneLink = phoneLink;
     tdPhone.append(phoneLink);
 
     const tdBtn = document.createElement('td');
@@ -265,7 +266,13 @@ const editBtn = {
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
-    const {list, logo, btnAdd, formOverlay, form} = phoneBook;
+    const {
+      list,
+      logo,
+      btnAdd,
+      formOverlay,
+      btnDel,
+    } = phoneBook;
 
     // Функционал
     const allRow = renderContacts(list, data);
@@ -276,13 +283,34 @@ const editBtn = {
       formOverlay.classList.add('is-visible');
     });
 
-    form.addEventListener('click', event => {
-      event.stopPropagation();
+    formOverlay.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target === formOverlay || target.classList.contains('close')) {
+        formOverlay.classList.remove('is-visible');
+      }
     });
 
-    formOverlay.addEventListener('click', () => {
-      formOverlay.classList.remove('is-visible');
+    btnDel.addEventListener('click', () => {
+      document.querySelectorAll('.delete').forEach(del => {
+        del.classList.toggle('is-visible');
+      });
     });
+
+    list.addEventListener('click', e => {
+      const target = e.target;
+      if (target.closest('.del-icon')) {
+        target.closest('.contact').remove();
+      }
+    });
+
+    setTimeout(() => {
+      const contact = createRow({
+        name: 'Максим',
+        surname: 'Лескин',
+        phone: '001',
+      });
+      list.append(contact);
+    }, 2000);
   };
 
   window.phoneBookInit = init;
