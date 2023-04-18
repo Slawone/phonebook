@@ -1,27 +1,7 @@
 'use strict';
 
-const data = [
-  {
-    name: 'Иван',
-    surname: 'Петров',
-    phone: '+79514545454',
-  },
-  {
-    name: 'Петр',
-    surname: 'Семёнов',
-    phone: '+79999999999',
-  },
-  {
-    name: 'Семён',
-    surname: 'Иванов',
-    phone: '+79800252525',
-  },
-  {
-    name: 'Мария',
-    surname: 'Попова',
-    phone: '+79876543210',
-  },
-];
+const itemsArray = localStorage.getItem('items') ?
+ JSON.parse(localStorage.getItem('items')) : [];
 
 const btnParams = [
   {
@@ -52,11 +32,6 @@ const editBtn = {
   className: 'btn btn-danger',
   type: 'button',
   text: 'Редактировать',
-};
-
-const addContactData = (contact) => {
-  data.push(contact);
-  console.log(data);
 };
 
 {
@@ -251,7 +226,7 @@ const addContactData = (contact) => {
   };
 
   const renderContacts = (elem, data) => {
-    const allRow = data.map(createRow);
+    const allRow = itemsArray.map(createRow);
     elem.append(...allRow);
     return allRow;
   };
@@ -286,23 +261,12 @@ const addContactData = (contact) => {
     };
   };
 
-  const deleteControl = (btnDel, list) => {
-    btnDel.addEventListener('click', () => {
-      document.querySelectorAll('.delete').forEach(del => {
-        del.classList.toggle('is-visible');
-      });
-    });
-
-    list.addEventListener('click', e => {
-      const target = e.target;
-      if (target.closest('.del-icon')) {
-        target.closest('.contact').remove();
-      }
-    });
-  };
-
   const addContactPage = (contact, list) => {
     list.append(createRow(contact));
+  };
+
+  const setStorage = (key, arr) => {
+    localStorage.setItem(key, JSON.stringify(arr));
   };
 
   const formControl = (form, list, closeModal) => {
@@ -313,9 +277,47 @@ const addContactData = (contact) => {
       const newContact = Object.fromEntries(formData);
 
       addContactPage(newContact, list);
-      addContactData(newContact);
+
+      itemsArray.push(newContact);
+
+      setStorage('items', itemsArray);
+
       form.reset();
       closeModal();
+    });
+  };
+
+  const getStorage = (key) => {
+    if (JSON.parse(localStorage.getItem(key))) {
+      return JSON.parse(localStorage.getItem(key));
+    } else {
+      return [];
+    }
+  };
+
+  const data = getStorage('items');
+
+  const deleteControl = (btnDel, list, data) => {
+    btnDel.addEventListener('click', () => {
+      document.querySelectorAll('.delete').forEach(del => {
+        del.classList.toggle('is-visible');
+      });
+    });
+
+    list.addEventListener('click', e => {
+      const target = e.target;
+      const phoneValue = target.closest('.contact').phoneLink.textContent;
+
+      if (target.closest('.del-icon')) {
+        target.closest('.contact').remove();
+      }
+      for (let i = 0; i < data.length; i += 1) {
+        const item = data[i];
+        if (item.phone === phoneValue) {
+          data.splice(i, 1);
+        }
+      }
+      setStorage('items', data);
     });
   };
 
@@ -336,7 +338,7 @@ const addContactData = (contact) => {
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
     hoverRow(allRow, logo);
-    deleteControl(btnDel, list);
+    deleteControl(btnDel, list, itemsArray);
     formControl(form, list, closeModal);
   };
 
